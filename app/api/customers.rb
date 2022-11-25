@@ -1,4 +1,4 @@
-class Customer < Grape::API
+class Customers < Grape::API
 
     format 'json'
     helpers BaseHerper
@@ -16,11 +16,13 @@ class Customer < Grape::API
         Rails.logger.info('访问结束，执行时间: ' + (Time.now - @start_time).to_s)
     end
     get "get-list" do
-        self.return_json 'success', 0, Customers.select_page_data(params[:page], params[:page_size])
+        customer = Customer.select_page_data(params[:page], params[:page_size]);
+        customer_admin = customer.map {|val| val.admin}
+        self.return_json 'success', 0, {list: customer, customer_admin: customer_admin, total: Customer.count}
     end
 
     desc "保存客户"
-    params[:page], params[:page_size] do
+    params do
         requires :id, type: Integer, desc: '主键id', default: 0
         requires :name, type: String, desc: '名称', allow_blank: false
         requires :phone, type: String, desc: '手机号'
@@ -35,16 +37,17 @@ class Customer < Grape::API
         Rails.logger.info('访问结束，执行时间: ' + (Time.now - @start_time).to_s)
     end
     post "save" do
-        if Customers.create_or_update(params)
-            self.return_json "#{id ? '修改' : '保存'}成功" 0, []
+        msg = params[:id] != 0 ? '修改' : '保存'
+        if Customer.create_or_update(params)
+            self.return_json "#{msg}成功", 0, []
         else
-            self.return_json "#{id ? '修改' : '保存'}失败", 0, []
+            self.return_json "#{msg}失败", 0, []
         end
         
     end
 
     desc "显示单客户"
-    params[:page], params[:page_size] do
+    params do
         requires :id, type: Integer, desc: '主键id', allow_blank: false
     end
     before do
@@ -55,14 +58,16 @@ class Customer < Grape::API
         Rails.logger.info('访问结束，执行时间: ' + (Time.now - @start_time).to_s)
     end
     get "show" do
-        customer = Customers.includes(:customer_follows, :customer_contacts).find(params[:id])
-        customer_follows = customer.customer_follows
-        customer_contacts = customer.customer_contacts
-        return_json 'success', 0, {customer_contacts: customer_contacts, customer: customer, customer_follows: customer_follows}
+        customer = Customer.includes(:admin).find(params[:id])
+        admin = customer.admin
+        return_json 'success', 0, {
+            customer: customer, 
+            admin: admin
+        }
     end
 
     desc "删除客户"
-    params[:page], params[:page_size] do
+    params do
         requires :id, type: Integer, desc: '主键id', allow_blank: false
     end
     before do
@@ -73,7 +78,7 @@ class Customer < Grape::API
         Rails.logger.info('访问结束，执行时间: ' + (Time.now - @start_time).to_s)
     end
     get "del" do
-        if Customers.delete(params[:id])
+        if Customer.delete(params[:id])
             return_json '删除成功', 0, []
         else
             return_json '删除失败', -1, []

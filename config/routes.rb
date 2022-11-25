@@ -3,7 +3,8 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "articles#index"
-    mount Customer => '/customer'
-    mount CustomerFollow => '/customer-follow'
-    mount CustomerContact => '/customer-contact'
+    mount Admins => '/admins'
+    mount Customers => '/customers'
+    mount CustomerFollows => '/customer-follows'
+    mount CustomerContacts => '/customer-contacts'
 end
