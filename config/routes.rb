@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   # root "articles#index"
     mount Admins => '/admins'
     mount Customers => '/customers'
-    mount CustomerFollows => '/customer-follows'
-    mount CustomerContacts => '/customer-contacts'
+    mount CustomerFollows => '/customer_follows'
+    mount CustomerContacts => '/customer_contacts'
+    mount Base => '/base'
 end

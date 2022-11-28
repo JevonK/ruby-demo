@@ -23,5 +23,25 @@ module RccApi
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+
+    # config.middleware.insert_before 0, "Rack::Cors" do
+    #   allow do
+    #     origins '*'
+    #     resource '*', :headers => :any, :methods => [:get, :post, :options]
+    #   end
+    # end
+    # Rails 5
+    config.middleware.insert_before 0, Rack::Cors do
+      allow do
+        origins '*'
+        resource '*', :headers => :any, :methods => [:get, :post, :options]
+      end
+    end
+    # config.action_dispatch.default_headers = {
+    #   'Access-Control-Allow-Origin' => '*',
+    #   'Access-Control-Allow-Methods' => 'POST, PUT, DELETE, GET, PATCH, OPTIONS',
+    #   'Access-Control-Request-Method' => '*',
+    #   'Access-Control-Allow-Headers' => '*'
+    #   }
   end
 end
